@@ -65,7 +65,7 @@ jobs:
   alembic-guard:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # needed to diff against the base branch
       - uses: ShalomHunukumbura/alembic-guard@v0

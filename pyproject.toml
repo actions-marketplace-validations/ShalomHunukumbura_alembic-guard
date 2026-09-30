@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "alembic-guard"
-version = "0.1.0"
+version = "0.1.1"
 description = "Catch Alembic migrations that lock tables or break running code before they reach production."
 readme = "README.md"
 requires-python = ">=3.10"

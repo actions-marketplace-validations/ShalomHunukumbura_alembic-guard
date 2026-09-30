@@ -3,6 +3,6 @@
 from .checker import Finding, check_file, check_source
 from .rules import RULES, Rule, Severity
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = ["Finding", "RULES", "Rule", "Severity", "check_file", "check_source", "__version__"]
