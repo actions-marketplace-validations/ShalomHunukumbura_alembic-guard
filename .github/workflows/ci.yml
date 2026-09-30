@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync
+      - run: uv run pytest -q
+
+  # Dogfood the action itself: the safe examples must pass, the dangerous one must fail.
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Safe migrations pass
+        uses: ./
+        with:
+          paths: examples/migrations/versions/0001_create_users.py examples/migrations/versions/0003_add_email_safely.py
+          strict: "true"
+          changed-only: "false"
+      - name: Dangerous migration fails
+        id: dangerous
+        continue-on-error: true
+        uses: ./
+        with:
+          paths: examples/migrations/versions/0002_add_email.py
+          changed-only: "false"
+      - name: Assert the dangerous migration was caught
+        if: steps.dangerous.outcome != 'failure'
+        run: |
+          echo "alembic-guard should have failed on 0002_add_email.py"
+          exit 1

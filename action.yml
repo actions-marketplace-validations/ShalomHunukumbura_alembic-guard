@@ -1,0 +1,59 @@
+name: alembic-guard
+description: Catch Alembic migrations that lock tables or break running code before they reach production.
+author: Shalom Hunukumbura
+branding:
+  icon: shield
+  color: blue
+
+inputs:
+  paths:
+    description: Space-separated migration files or directories. Defaults to every Alembic versions/ directory found.
+    required: false
+    default: ""
+  strict:
+    description: Fail on warnings as well as errors.
+    required: false
+    default: "false"
+  ignore:
+    description: Comma-separated rule ids to skip, e.g. AG002,AG005.
+    required: false
+    default: ""
+  changed-only:
+    description: On pull requests, only check migrations the PR adds or changes. Needs actions/checkout with fetch-depth 0.
+    required: false
+    default: "true"
+  python-version:
+    description: Python version used to run the checker.
+    required: false
+    default: "3.12"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install alembic-guard
+      shell: bash
+      run: pip install --quiet "${{ github.action_path }}"
+
+    - name: Check migrations
+      shell: bash
+      env:
+        AG_PATHS: ${{ inputs.paths }}
+        AG_STRICT: ${{ inputs.strict }}
+        AG_IGNORE: ${{ inputs.ignore }}
+        AG_CHANGED_ONLY: ${{ inputs.changed-only }}
+        AG_BASE_REF: ${{ github.base_ref }}
+      run: |
+        args=(--format github)
+        [[ "$AG_STRICT" == "true" ]] && args+=(--strict)
+        [[ -n "$AG_IGNORE" ]] && args+=(--ignore "$AG_IGNORE")
+        if [[ "$AG_CHANGED_ONLY" == "true" && -n "$AG_BASE_REF" ]]; then
+          git fetch --no-tags --quiet origin "$AG_BASE_REF"
+          args+=(--diff-base "origin/$AG_BASE_REF")
+        fi
+        # Word-splitting on AG_PATHS is intended: it is a space-separated list.
+        # shellcheck disable=SC2086
+        alembic-guard "${args[@]}" $AG_PATHS
