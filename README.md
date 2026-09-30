@@ -64,7 +64,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # needed to diff against the base branch
-      - uses: ShalomHunukumbura/alembic-guard@v1
+      - uses: ShalomHunukumbura/alembic-guard@v0
         with:
           strict: "false"        # set "true" to fail on warnings
           # paths: "app/migrations/versions"
