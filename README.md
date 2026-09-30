@@ -2,6 +2,10 @@
 
 **Catch Alembic migrations that lock tables or break running code, before they reach production.**
 
+![alembic-guard catching a dangerous migration, then passing the zero-downtime version](docs/demo.gif)
+
+See it on a real pull request: [alembic-guard-demo](https://github.com/ShalomHunukumbura/alembic-guard-demo/pulls).
+
 This migration passes code review, passes tests on an empty dev database, and takes down production:
 
 ```python
